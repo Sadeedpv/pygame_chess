@@ -13,6 +13,8 @@ exit = False
 board_size = 8
 square_size = min(screen_width, screen_height) // (board_size + 1)
 
+bgColor = (64, 62, 57)
+selected_color = (255, 90, 48)
 color1 = (238,238,210)
 color2 = (118,150,86)
 
@@ -73,6 +75,11 @@ chessBoard[6][5] = "white_pawn"
 chessBoard[6][6] = "white_pawn"
 chessBoard[6][7] = "white_pawn"
 
+# Calculate the starting position to center the chessboard
+start_x = (screen_width - (board_size * square_size)) // 2
+start_y = (screen_height - (board_size * square_size)) // 2
+
+
 def draw_board():
     for row in range(board_size):
         for column in range(board_size):
@@ -80,24 +87,57 @@ def draw_board():
                 color = color1
             else:
                 color = color2
-            pygame.draw.rect(screen, color, pygame.Rect((start_x + column * square_size), (start_y + row * square_size), square_size, square_size))
+            pygame.draw.rect(screen, selected_color if selected_piece_row ==row and selected_piece_col == column else color , pygame.Rect((start_x + column * square_size), (start_y + row * square_size), square_size, square_size))
             piece = chessBoard[row][column]
             if piece:
                 piece_img = pygame.transform.scale(pieces[piece], (square_size, square_size))
                 screen.blit(piece_img, (start_x + column * square_size, start_y + row * square_size))
 
 
+selected_piece = None
+selected_piece_row = None
+selected_piece_col = None
+turn = "white"
 
-# Calculate the starting position to center the chessboard
-start_x = (screen_width - (board_size * square_size)) // 2
-start_y = (screen_height - (board_size * square_size)) // 2
+def handleClick(row,col):
+    print("Mouse clicked at", row, col)
+    global selected_piece, selected_piece_row, selected_piece_col, turn
+
+    # Check if there's already a selected piece and it's the player's turn
+    if selected_piece and chessBoard[row][col] is None and selected_piece.startswith(turn):
+        # Move the selected piece to the new position
+        chessBoard[row][col] = selected_piece
+        # Clear the old position
+        chessBoard[selected_piece_row][selected_piece_col] = None
+        # Switch turn to the other player
+        turn = "white" if turn == "black" else "black"
+        selected_piece = None
+    elif chessBoard[row][col] and chessBoard[row][col].startswith(turn):
+        # If the clicked square contains a piece of the player's color, select it
+        selected_piece = chessBoard[row][col]
+        selected_piece_row, selected_piece_col = row, col
+    else:
+        # If the clicked square is empty or contains an opponent's piece, deselect
+        selected_piece = None
+
+
+
 
 while not exit:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        # If user press ESC or clicks X
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             exit = True
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            mouse_x, mouse_y = event.pos
+            # Handle logic if clicked inside the board
+            if start_x <= mouse_x <= start_x + (board_size * square_size) and start_y <= mouse_y <= start_y + (board_size * square_size):
+                col = (mouse_x - start_x) // square_size
+                row = (mouse_y - start_y) // square_size
+                handleClick(row, col)
+                
             
-    screen.fill((64, 62, 57))  # Clear the screen
+    screen.fill(bgColor)  # Clear the screen
     draw_board()
 
     pygame.display.update()
