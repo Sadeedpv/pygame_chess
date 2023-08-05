@@ -1,4 +1,6 @@
 import pygame
+# Import a function from functions.py inside utils folder for me
+from utils.functions import get_moves
 pygame.init()
 
 # Create the screen
@@ -87,7 +89,9 @@ def draw_board():
                 color = color1
             else:
                 color = color2
-            pygame.draw.rect(screen, selected_color if selected_piece_row ==row and selected_piece_col == column else color , pygame.Rect((start_x + column * square_size), (start_y + row * square_size), square_size, square_size))
+            if (possible_moves is not None and (row, column) in possible_moves) or (selected_piece_row ==row and selected_piece_col == column):
+                color = selected_color
+            pygame.draw.rect(screen, color, pygame.Rect((start_x + column * square_size), (start_y + row * square_size), square_size, square_size))
             piece = chessBoard[row][column]
             if piece:
                 piece_img = pygame.transform.scale(pieces[piece], (square_size, square_size))
@@ -98,13 +102,14 @@ selected_piece = None
 selected_piece_row = None
 selected_piece_col = None
 turn = "white"
+possible_moves = []
 
 def handleClick(row,col):
     print("Mouse clicked at", row, col)
-    global selected_piece, selected_piece_row, selected_piece_col, turn
+    global selected_piece, selected_piece_row, selected_piece_col, turn, possible_moves
 
     # Check if there's already a selected piece and it's the player's turn
-    if selected_piece and chessBoard[row][col] is None and selected_piece.startswith(turn):
+    if selected_piece and chessBoard[row][col] is None and possible_moves is not None and (row,col) in possible_moves and selected_piece.startswith(turn):
         # Move the selected piece to the new position
         chessBoard[row][col] = selected_piece
         # Clear the old position
@@ -116,6 +121,7 @@ def handleClick(row,col):
         # If the clicked square contains a piece of the player's color, select it
         selected_piece = chessBoard[row][col]
         selected_piece_row, selected_piece_col = row, col
+        possible_moves = get_moves(chessBoard[row][col], row, col, chessBoard, board_size)
     else:
         # If the clicked square is empty or contains an opponent's piece, deselect
         selected_piece = None
