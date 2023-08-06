@@ -36,6 +36,8 @@ pieces = {
     "white_king": pygame.image.load("images/white_king.png")
 }
 
+captured_pieces = []
+
 # Create the chessboard representation as a 2D list
 chessBoard = [[None for _ in range(board_size)] for _ in range(board_size)]
 
@@ -109,7 +111,7 @@ def handleClick(row,col):
     global selected_piece, selected_piece_row, selected_piece_col, turn, possible_moves
 
     # Check if there's already a selected piece and it's the player's turn
-    if selected_piece and chessBoard[row][col] is None and possible_moves is not None and (row,col) in possible_moves and selected_piece.startswith(turn):
+    if selected_piece and (chessBoard[row][col] is None or not chessBoard[row][col].startswith(turn)) and possible_moves is not None and (row,col) in possible_moves and selected_piece.startswith(turn):
         # Move the selected piece to the new position
         chessBoard[row][col] = selected_piece
         # Clear the old position
@@ -121,7 +123,7 @@ def handleClick(row,col):
         # If the clicked square contains a piece of the player's color, select it
         selected_piece = chessBoard[row][col]
         selected_piece_row, selected_piece_col = row, col
-        possible_moves = get_moves(chessBoard[row][col], row, col, chessBoard, board_size)
+        possible_moves = get_moves(chessBoard[row][col], row, col, chessBoard, board_size, turn)
     else:
         # If the clicked square is empty or contains an opponent's piece, deselect
         selected_piece = None
