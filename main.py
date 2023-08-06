@@ -1,7 +1,13 @@
 import pygame
-# Import a function from functions.py inside utils folder for me
+import pygame.font
+import pygame.time
+import time
 from utils.functions import get_moves
 pygame.init()
+
+# Declare font sizes
+font = pygame.font.SysFont("segoeui", 26)
+winner_font = pygame.font.SysFont("segoeui", 50)
 
 # Create the screen
 screen_width, screen_height = 800, 600
@@ -11,11 +17,13 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Chess game")
 exit = False
 
+game_over = False
+
 # Chessboard properties
 board_size = 8
 square_size = min(screen_width, screen_height) // (board_size + 1)
 
-bgColor = (64, 62, 57)
+bgColor = (128, 128, 128)
 selected_color = (255, 90, 48)
 color1 = (238,238,210)
 color2 = (118,150,86)
@@ -37,6 +45,13 @@ pieces = {
 }
 
 captured_pieces = []
+winner = None
+
+# Timer
+time_limit = 180000
+start_time = pygame.time.get_ticks()
+white_time = time_limit
+black_time = time_limit
 
 # Create the chessboard representation as a 2D list
 chessBoard = [[None for _ in range(board_size)] for _ in range(board_size)]
@@ -94,6 +109,26 @@ def draw_board():
             if (possible_moves is not None and (row, column) in possible_moves) or (selected_piece_row ==row and selected_piece_col == column):
                 color = selected_color
             pygame.draw.rect(screen, color, pygame.Rect((start_x + column * square_size), (start_y + row * square_size), square_size, square_size))
+
+            # Text displaying whose turn it is
+            current_turn_text = font.render(f"Current Turn: {turn.capitalize()}", True, (255, 255, 255))
+            screen.blit(current_turn_text, (280, 0))
+
+            # Text displaying the time left for each player
+            white_time_text = font.render(f"White Time: {white_time // 1000}", True, (255, 255, 255))
+            screen.blit(white_time_text, (60, 0))
+
+            black_time_text = font.render(f"Black Time: {black_time // 1000}", True, (255, 255, 255))
+            screen.blit(black_time_text, (540, 0))
+
+            # Text displaying the winner
+            if game_over:
+                # Clear the background
+                pygame.draw.rect(screen, bgColor, pygame.Rect((start_x + column * square_size), (start_y + row * square_size), square_size, square_size))
+                winner_text = winner_font.render(f"Winner: {winner.capitalize()}", True, (255,255,255) if winner == "white" else (0,0,0))
+                text_rect = winner_text.get_rect(center=(screen_width // 2, screen_height // 2))
+                screen.blit(winner_text, text_rect)
+
             piece = chessBoard[row][column]
             if piece:
                 piece_img = pygame.transform.scale(pieces[piece], (square_size, square_size))
@@ -108,10 +143,20 @@ possible_moves = []
 
 def handleClick(row,col):
     print("Mouse clicked at", row, col)
-    global selected_piece, selected_piece_row, selected_piece_col, turn, possible_moves
+    global selected_piece, selected_piece_row, selected_piece_col, turn, possible_moves, winner, game_over, exit
 
     # Check if there's already a selected piece and it's the player's turn
-    if selected_piece and (chessBoard[row][col] is None or not chessBoard[row][col].startswith(turn)) and possible_moves is not None and (row,col) in possible_moves and selected_piece.startswith(turn):
+    if selected_piece and possible_moves is not None and (row,col) in possible_moves and selected_piece.startswith(turn):
+        # If the king is captured declare the winner and set game_over to True
+        if chessBoard[row][col] and chessBoard[row][col].endswith("king"):
+            print("Game over!")
+            winner = turn
+            game_over = True
+            # Move the selected piece to the new position
+            chessBoard[row][col] = selected_piece
+            # Clear the old position
+            chessBoard[selected_piece_row][selected_piece_col] = None
+            return
         # Move the selected piece to the new position
         chessBoard[row][col] = selected_piece
         # Clear the old position
@@ -136,7 +181,7 @@ while not exit:
         # If user press ESC or clicks X
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             exit = True
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over:
             mouse_x, mouse_y = event.pos
             # Handle logic if clicked inside the board
             if start_x <= mouse_x <= start_x + (board_size * square_size) and start_y <= mouse_y <= start_y + (board_size * square_size):
@@ -144,8 +189,22 @@ while not exit:
                 row = (mouse_y - start_y) // square_size
                 handleClick(row, col)
                 
-            
+
+    # Update the timer
+    if not game_over:
+        if turn == "white":
+            white_time -= pygame.time.get_ticks() - start_time
+        else:
+            black_time -= pygame.time.get_ticks() - start_time
+        start_time = pygame.time.get_ticks()
+
+        if white_time <=0 :
+            game_over = True
+            winner = "black"
+        elif black_time <= 0:
+            game_over = True
+            winner = "white"
     screen.fill(bgColor)  # Clear the screen
     draw_board()
-
+    
     pygame.display.update()

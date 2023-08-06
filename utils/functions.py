@@ -244,7 +244,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
 
 def check_isNone(chessBoard, row, col, turn):
     try:
-        if chessBoard[row][col] is None or (not chessBoard[row][col].startswith(turn) and not chessBoard[row][col].endswith("king")):
+        if chessBoard[row][col] is None or not chessBoard[row][col].startswith(turn):
             return row,col
         else:
             return False
@@ -255,7 +255,7 @@ def check_isNone(chessBoard, row, col, turn):
 
 def check_side_pieces_for_pawns(chessBoard, row, col, turn):
     try:
-        if chessBoard[row][col] is not None and not chessBoard[row][col].startswith(turn) and not chessBoard[row][col].endswith("king"):
+        if chessBoard[row][col] is not None and not chessBoard[row][col].startswith(turn):
             return row,col
         else:
             return False
