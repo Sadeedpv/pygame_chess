@@ -157,6 +157,10 @@ def handleClick(row,col):
             # Clear the old position
             chessBoard[selected_piece_row][selected_piece_col] = None
             return
+        
+        # If the selected piece is a pawn and it reaches the other side of the board, promote it to a queen
+        if selected_piece.endswith("pawn") and (row == 0 or row == board_size - 1):
+            selected_piece = selected_piece.replace("pawn", "queen")
         # Move the selected piece to the new position
         chessBoard[row][col] = selected_piece
         # Clear the old position

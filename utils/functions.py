@@ -26,8 +26,8 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                 else:
                     moves.append((row + 1, col))
             # Check if there are pieces for pawns to capture sideways
-            moves.append(check_side_pieces_for_pawns(chessBoard, row + 1, col - 1, turn))
-            moves.append(check_side_pieces_for_pawns(chessBoard, row + 1, col + 1, turn))
+            moves.append(check_side_pieces_for_pawns(chessBoard, row + 1, col - 1, turn,))
+            moves.append(check_side_pieces_for_pawns(chessBoard, row + 1, col + 1, turn,))
             
         return moves
 
