@@ -16,8 +16,8 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                 else:
                     moves.append((row-1, col))
             # Check if there are pieces for pawns to capture sideways
-            moves.append(check_side_pieces_for_pawns(chessBoard, row - 1, col - 1, turn))
-            moves.append(check_side_pieces_for_pawns(chessBoard, row - 1, col + 1, turn))
+            moves.append(check_side_captures_for_pawn(chessBoard, row - 1, col - 1, turn))
+            moves.append(check_side_captures_for_pawn(chessBoard, row - 1, col + 1, turn))
         elif piece_name.startswith("black"):
             if chessBoard[row+1][col] is None:
                 if row == 1:
@@ -26,8 +26,8 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                 else:
                     moves.append((row + 1, col))
             # Check if there are pieces for pawns to capture sideways
-            moves.append(check_side_pieces_for_pawns(chessBoard, row + 1, col - 1, turn,))
-            moves.append(check_side_pieces_for_pawns(chessBoard, row + 1, col + 1, turn,))
+            moves.append(check_side_captures_for_pawn(chessBoard, row + 1, col - 1, turn,))
+            moves.append(check_side_captures_for_pawn(chessBoard, row + 1, col + 1, turn,))
             
         return moves
 
@@ -38,14 +38,14 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
     if piece_name.endswith("knight"):
         print("It's a Knight")
         moves = []
-        moves.append(check_isNone(chessBoard, row - 2, col - 1, turn))
-        moves.append(check_isNone(chessBoard, row - 2, col + 1, turn))
-        moves.append(check_isNone(chessBoard, row - 1, col - 2, turn))
-        moves.append(check_isNone(chessBoard, row - 1, col + 2, turn))
-        moves.append(check_isNone(chessBoard, row + 1, col - 2, turn))
-        moves.append(check_isNone(chessBoard, row + 1, col + 2, turn))
-        moves.append(check_isNone(chessBoard, row + 2, col - 1, turn))
-        moves.append(check_isNone(chessBoard, row + 2, col + 1, turn))
+        moves.append(check_possible_move(chessBoard, row - 2, col - 1, turn))
+        moves.append(check_possible_move(chessBoard, row - 2, col + 1, turn))
+        moves.append(check_possible_move(chessBoard, row - 1, col - 2, turn))
+        moves.append(check_possible_move(chessBoard, row - 1, col + 2, turn))
+        moves.append(check_possible_move(chessBoard, row + 1, col - 2, turn))
+        moves.append(check_possible_move(chessBoard, row + 1, col + 2, turn))
+        moves.append(check_possible_move(chessBoard, row + 2, col - 1, turn))
+        moves.append(check_possible_move(chessBoard, row + 2, col + 1, turn))
         return moves
     
     """
@@ -57,7 +57,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
         # Check possible moves in diagonal direction (up and down)
         for i in range(1,board_size):
             if row + i < board_size and col + i < board_size:
-                if check_isNone(chessBoard, row+i, col+i, turn):
+                if check_possible_move(chessBoard, row+i, col+i, turn):
                     if chessBoard[row+i][col+i] and not chessBoard[row+i][col+i].startswith(turn):
                         moves.append((row+i, col+i))
                         break
@@ -66,7 +66,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                     break
         for i in range(1, board_size):
             if row - i >= 0 and col - i >= 0:
-                if check_isNone(chessBoard, row-i, col-i, turn):
+                if check_possible_move(chessBoard, row-i, col-i, turn):
                     if chessBoard[row-i][col-i] and not chessBoard[row-i][col-i].startswith(turn):
                         moves.append((row-i, col-i))
                         break
@@ -75,7 +75,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                     break
         for i in range(1, board_size):
             if row+i < board_size and col - i >= 0:
-                if check_isNone(chessBoard, row+i, col-i, turn):
+                if check_possible_move(chessBoard, row+i, col-i, turn):
                     if chessBoard[row+i][col-i] and not chessBoard[row+i][col-i].startswith(turn):
                         moves.append((row+i, col-i))
                         break
@@ -84,7 +84,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                     break
         for i in range(1, board_size):
             if row-i >= 0 and col + i < board_size:
-                if check_isNone(chessBoard, row-i, col+i, turn):
+                if check_possible_move(chessBoard, row-i, col+i, turn):
                     if chessBoard[row-i][col+i] and not chessBoard[row-i][col+i].startswith(turn):
                         moves.append((row-i, col+i))
                         break
@@ -102,7 +102,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
         moves = []
         # Check possible moves in vertical direction (up and down)
         for i in range(row + 1, board_size):
-            if check_isNone(chessBoard, i, col, turn):
+            if check_possible_move(chessBoard, i, col, turn):
                 if chessBoard[i][col] and not chessBoard[i][col].startswith(turn):
                     moves.append((i, col))
                     break
@@ -111,7 +111,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                 break
 
         for i in range(row - 1, -1, -1):
-            if check_isNone(chessBoard, i, col, turn):
+            if check_possible_move(chessBoard, i, col, turn):
                 if chessBoard[i][col] and not chessBoard[i][col].startswith(turn):
                     moves.append((i, col))
                     break
@@ -121,7 +121,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
 
         # Check possible moves in horizontal direction (left and right)
         for j in range(col + 1, board_size):
-            if check_isNone(chessBoard, row, j, turn):
+            if check_possible_move(chessBoard, row, j, turn):
                 if chessBoard[row][j] and not chessBoard[row][j].startswith(turn):
                     moves.append((row, j))
                     break
@@ -130,7 +130,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                 break
 
         for j in range(col - 1, -1, -1):
-            if check_isNone(chessBoard, row, j, turn):
+            if check_possible_move(chessBoard, row, j, turn):
                 if chessBoard[row][j] and not chessBoard[row][j].startswith(turn):
                     moves.append((row, j))
                     break
@@ -141,7 +141,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
         # Check possible moves in diagonal direction (up and down)
         for i in range(1,board_size):
             if row + i < board_size and col + i < board_size:
-                if check_isNone(chessBoard, row+i, col+i, turn):
+                if check_possible_move(chessBoard, row+i, col+i, turn):
                     if chessBoard[row+i][col+i] and not chessBoard[row+i][col+i].startswith(turn):
                         moves.append((row+i, col+i))
                         break
@@ -150,7 +150,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                     break
         for i in range(1, board_size):
             if row - i >= 0 and col - i >= 0:
-                if check_isNone(chessBoard, row-i, col-i, turn):
+                if check_possible_move(chessBoard, row-i, col-i, turn):
                     if chessBoard[row-i][col-i] and not chessBoard[row-i][col-i].startswith(turn):
                         moves.append((row-i, col-i))
                         break
@@ -159,7 +159,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                     break
         for i in range(1, board_size):
             if row+i < board_size and col - i >= 0:
-                if check_isNone(chessBoard, row+i, col-i, turn):
+                if check_possible_move(chessBoard, row+i, col-i, turn):
                     if chessBoard[row+i][col-i] and not chessBoard[row+i][col-i].startswith(turn):
                         moves.append((row+i, col-i))
                         break
@@ -168,7 +168,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                     break
         for i in range(1, board_size):
             if row-i >= 0 and col + i < board_size:
-                if check_isNone(chessBoard, row-i, col+i, turn):
+                if check_possible_move(chessBoard, row-i, col+i, turn):
                     if chessBoard[row-i][col+i] and not chessBoard[row-i][col+i].startswith(turn):
                         moves.append((row-i, col+i))
                         break
@@ -183,14 +183,14 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
     if piece_name.endswith("king"):
         print("It's a King")
         moves = []
-        moves.append(check_isNone(chessBoard, row - 1, col - 1, turn))
-        moves.append(check_isNone(chessBoard, row - 1, col, turn))
-        moves.append(check_isNone(chessBoard,row - 1, col + 1, turn))
-        moves.append(check_isNone(chessBoard, row, col-1, turn))
-        moves.append(check_isNone(chessBoard, row,col+1, turn))
-        moves.append(check_isNone(chessBoard, row + 1, col - 1, turn))
-        moves.append(check_isNone(chessBoard, row + 1, col, turn))
-        moves.append(check_isNone(chessBoard, row + 1, col + 1, turn))
+        moves.append(check_possible_move(chessBoard, row - 1, col - 1, turn))
+        moves.append(check_possible_move(chessBoard, row - 1, col, turn))
+        moves.append(check_possible_move(chessBoard,row - 1, col + 1, turn))
+        moves.append(check_possible_move(chessBoard, row, col-1, turn))
+        moves.append(check_possible_move(chessBoard, row,col+1, turn))
+        moves.append(check_possible_move(chessBoard, row + 1, col - 1, turn))
+        moves.append(check_possible_move(chessBoard, row + 1, col, turn))
+        moves.append(check_possible_move(chessBoard, row + 1, col + 1, turn))
         return moves
 
 
@@ -204,7 +204,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
 
         # Check possible moves in vertical direction (up and down)
         for i in range(row + 1, board_size):
-            if check_isNone(chessBoard, i, col, turn):
+            if check_possible_move(chessBoard, i, col, turn):
                 if chessBoard[i][col] and not chessBoard[i][col].startswith(turn):
                     moves.append((i, col))
                     break
@@ -213,7 +213,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                 break
 
         for i in range(row - 1, -1, -1):
-            if check_isNone(chessBoard, i, col, turn):
+            if check_possible_move(chessBoard, i, col, turn):
                 if chessBoard[i][col] and not chessBoard[i][col].startswith(turn):
                     moves.append((i, col))
                     break
@@ -223,7 +223,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
 
         # Check possible moves in horizontal direction (left and right)
         for j in range(col + 1, board_size):
-            if check_isNone(chessBoard, row, j, turn):
+            if check_possible_move(chessBoard, row, j, turn):
                 if chessBoard[row][j] and not chessBoard[row][j].startswith(turn):
                     moves.append((row, j))
                     break
@@ -232,7 +232,7 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
                 break
 
         for j in range(col - 1, -1, -1):
-            if check_isNone(chessBoard, row, j, turn):
+            if check_possible_move(chessBoard, row, j, turn):
                 if chessBoard[row][j] and not chessBoard[row][j].startswith(turn):
                     moves.append((row, j))
                     break
@@ -242,7 +242,8 @@ def get_moves(piece_name, row, col, chessBoard, board_size, turn):
         return moves
     
 
-def check_isNone(chessBoard, row, col, turn):
+# This function checks whether the box user clicked is empty or blocked with their own piece
+def check_possible_move(chessBoard, row, col, turn):
     try:
         if chessBoard[row][col] is None or not chessBoard[row][col].startswith(turn):
             return row,col
@@ -253,7 +254,8 @@ def check_isNone(chessBoard, row, col, turn):
     except IndexError:
         return False
 
-def check_side_pieces_for_pawns(chessBoard, row, col, turn):
+# This function checks whether there are any pieces that pawns can capture
+def check_side_captures_for_pawn(chessBoard, row, col, turn):
     try:
         if chessBoard[row][col] is not None and not chessBoard[row][col].startswith(turn):
             return row,col

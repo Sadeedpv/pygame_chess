@@ -1,7 +1,6 @@
 import pygame
 import pygame.font
 import pygame.time
-import time
 from utils.functions import get_moves
 pygame.init()
 
